@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>transit mobility</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.js'></script>
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+</head>
+<body>
+<div id='map' style='width: 100vw; height: 100vh;'></div>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2JpbmRtYW4iLCJhIjoiaENWQnlrVSJ9.0DQyCLWgA0j8yBpmvt3bGA';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v9',
+        center: [-122.4367904663086,
+            37.76230130281876],
+        zoom : 12
+    });
+
+    var bbox = [ -122.51541137695311, 37.70555348721583 , -122.34924316406251, 37.81195385919268];
+   // bbox = [ -122.51541137695311, 37.70555348721583 , -122.50, 37.69];
+    var cellSize = 8;
+    var units = 'kilometers';
+    var completelyWithin = true;
+
+    var squareGrid = turf.squareGrid(bbox, cellSize, units, completelyWithin);
+
+    var test = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        -122.62390136718749,
+                        37.754972691904946
+                    ]
+                }
+            }
+        ]
+    };
+
+    squareGrid.features.forEach(function (f, i) {
+
+
+        var centroidPt = turf.centroid(f);
+
+        var json = {
+            "locations": [{"lat":centroidPt.geometry.coordinates[1],"lon":centroidPt.geometry.coordinates[0]}],
+            "costing": "multimodal",
+            "contours":[{"time":30}],
+            "polygons": true
+        };
+
+        var url =  'https://matrix.mapzen.com/isochrone?json=';
+        url = encodeURI(url + JSON.stringify(json));
+
+        console.log(url);
+
+
+        $.ajax({
+            url: url,
+            dataType: "json",
+            data: {
+                "api_key": "mapzen-Xc4NRCr"
+            },
+        }).done(function(res) {
+            console.log('success');
+            //percent
+            f.properties.area = turf.area(res.features[0]) / 1214000;
+            f.properties.index = i;
+            f.properties.feature = res.features[0];
+        }).fail(function(err) {
+            console.log( "error: " + err );
+            f.properties.area = 0;
+            f.properties.index = i;
+            f.properties.feature = test;
+        });
+    });
+
+
+    map.on('load', function () {
+
+        //grid layer
+        map.addLayer({
+            'id': 'grid',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': squareGrid
+            },
+            'layout': {},
+            'paint': {
+                "fill-color": {
+                    "property": "area",
+                    "type": "interval",
+                    "stops": [
+                        [0, "black"],
+                        [10, "red"],
+                        [20, "blue"],
+                        [30, "green"]
+                    ]
+                },
+                "fill-outline-color" : 'white'
+            }
+        });
+
+       // grid layer
+        map.addLayer({
+            'id': 'grid-fill',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': squareGrid
+            },
+            'layout': {},
+            "paint": {
+                "fill-color": "#627BC1",
+                "fill-opacity": 1
+            },
+            "filter": ["==", "index", ""]
+        });
+
+
+
+        //   grid layer
+        map.addLayer({
+            'id': 'contour',
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': test
+            },
+            'layout': {},
+            'paint': {
+                'fill-color': '#088',
+                'fill-opacity': 0.8,
+                'fill-outline-color' : '#088'
+            }
+        });
+
+        // When the user moves their mouse over the states-fill layer, we'll update the filter in
+        // the grid layer to only show the matching state, thus making a hover effect.
+        map.on("mousemove", "grid", function(e) {
+            map.setFilter("grid-fill", ["==", "index", e.features[0].properties.index]);
+
+            map.getSource('contour').setData( {
+                "type": "FeatureCollection",
+                "features": [
+                    JSON.parse(e.features[0].properties.feature)
+                ]
+            }
+
+                );
+
+
+        });
+
+     //    Reset the grid layer's filter when the mouse leaves the layer.
+        map.on("mouseleave", "grid", function() {
+            map.setFilter("grid-fill", ["==", "index", ""]);
+            map.getSource('contour').setData(test);
+        });
+
+
+
+
+
+    });
+</script>
+</body>
+</html>
