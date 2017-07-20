@@ -7,11 +7,37 @@
     <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.css' rel='stylesheet' />
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+    <script src="data.js" ></script>
+    <style>
+        #mapzen {
+            position: absolute;
+            bottom: 0;
+            float: right;
+            right: 265px;
+            font-size: 13px;
+            background-color: rgba(255, 255, 255, .5);
+            font-family: sans-serif;
+            padding: 6px;
+        }
+
+        #mapzen a {
+            text-decoration: none;
+            color: black;
+            font-weight: 100;
+        }
+
+        .mapboxgl-ctrl.mapboxgl-ctrl-attrib {
+            margin: 0 8px 7px 0;
+            padding: 4px 5px;
+        }
+    </style>
 </head>
 <body>
 <div id='map' style='width: 100vw; height: 100vh;'></div>
-© <a href="https://www.mapzen.com/rights">Mapzen</a>,  <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>
-, and <a href="https://www.mapzen.com/rights/#services-and-data-sources">others</a>
+<div id="mapzen">
+© <a href="https://www.mapzen.com/rights">Mapzen</a>
+, and <a href="https://www.mapzen.com/rights/#services-and-data-sources">others, and </a>
+</div>
 <script>
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2JpbmRtYW4iLCJhIjoiaENWQnlrVSJ9.0DQyCLWgA0j8yBpmvt3bGA';
     var map = new mapboxgl.Map({
@@ -22,9 +48,41 @@
         zoom : 12
     });
 
-    var bbox = [ -122.51541137695311, 37.70555348721583 , -122.34924316406251, 37.81195385919268];
-    var cellSize = 6;
-    var units = 'kilometers';
+    //var bbox = [ -122.51541137695311, 37.70555348721583 , -122.34924316406251, 37.81195385919268];
+
+    //var lat_increment (-122) = 0.04154205322265;
+    //var long_increment (37) = 0.02660009299421;
+
+    //boxes start in bottom right corner moving bottom to top, right to left
+
+    var bboxa = [ -122.39078521728516, 37.70786226112981 , -122.35628128051756, 37.73215358021004];
+    var bboxb = [ -122.39078521728516, 37.73215358021004 , -122.36701011657716, 37.75875367320425];
+    var bboxc = [ -122.39078521728516, 37.75875367320425 , -122.38125801086424, 37.78535376619846];
+    var bboxd = [ -122.39078521728516, 37.78535376619846 , -122.38434791564941, 37.79113369314532];
+
+    var bboxe = [ -122.43232727050781, 37.70555348721583 , -122.39078521728516, 37.73215358021004];
+    var bboxf = [ -122.43232727050781, 37.73215358021004 , -122.39078521728516, 37.75875367320425];
+    var bboxg = [ -122.43232727050781, 37.75875367320425 , -122.39078521728516, 37.78535376619846];
+    var bboxh = [ -122.43232727050781, 37.78535376619846 , -122.39078521728516, 37.81195385919267];
+
+    var bboxi = [ -122.47386932373046, 37.70555348721583 , -122.43232727050781, 37.73215358021004];
+    var bboxj = [ -122.47386932373046, 37.73215358021004 , -122.43232727050781, 37.75875367320425];
+    var bboxk = [ -122.47386932373046, 37.75875367320425 , -122.43232727050781, 37.78535376619846];
+    var bboxl = [ -122.47386932373046, 37.78535376619846 , -122.43232727050781, 37.80897022175241];
+
+    var bboxm = [ -122.50665664672852, 37.70555348721583 , -122.47386932373046, 37.73215358021004];
+    var bboxn = [ -122.51034736633302, 37.73215358021004 , -122.47386932373046, 37.75875367320425];
+    var bboxo = [ -122.51541137695311, 37.75875367320425 , -122.47386932373046, 37.78535376619846];
+    //this bounding box should be divided into 2
+    var bboxp = [ -122.51541137695311, 37.78535376619846 , -122.47386932373046, 37.81195385919267];
+
+    bbox = bboxg;
+    var index = 700;
+
+
+
+    var cellSize = .25;
+    var units = 'miles';
     var completelyWithin = true;
 
     var squareGrid = turf.squareGrid(bbox, cellSize, units, completelyWithin);
@@ -47,7 +105,7 @@
     };
 
     var squareGridFeatures = squareGrid.features.slice();
-    var index = 0;
+
 
     function processSquareGrids() {
 
@@ -66,7 +124,8 @@
             "locations": [{"lat":centroidPt.geometry.coordinates[1],"lon":centroidPt.geometry.coordinates[0]}],
             "costing": "multimodal",
             "contours":[{"time":30}],
-            "polygons": true
+            "polygons": true,
+            "date_time": [{"type":1, "value" : "2017-07-19T08:00"}]
         };
 
         var url =  'https://matrix.mapzen.com/isochrone?json=';
@@ -84,55 +143,23 @@
         }).done(function(res) {
             console.log('success');
             //percent
-            f.properties.area = turf.area(res.features[0]) / 1214000;
+            f.properties.area = turf.area(res.features[0]);
             f.properties.index = index;
             f.properties.feature = res.features[0];
             index += 1;
         }).fail(function(err) {
             console.log( "error: " + err );
+            f.properties.area = 0;
+            f.properties.index = index;
+            f.properties.feature = test;
+            index += 1;
         });
     }
+//      toggle to process square grid
+  //  processSquareGrids();
 
-    processSquareGrids();
 
-//    squareGrid.features.forEach(function (f, i) {
-//
-//
-//        var centroidPt = turf.centroid(f);
-//
-//        var json = {
-//            "locations": [{"lat":centroidPt.geometry.coordinates[1],"lon":centroidPt.geometry.coordinates[0]}],
-//            "costing": "multimodal",
-//            "contours":[{"time":30}],
-//            "polygons": true
-//        };
-//
-//        var url =  'https://matrix.mapzen.com/isochrone?json=';
-//        url = encodeURI(url + JSON.stringify(json));
-//
-//        console.log(url);
-//
-//
-//        $.ajax({
-//            url: url,
-//            dataType: "json",
-//            data: {
-//                "api_key": "mapzen-Xc4NRCr"
-//            },
-//        }).done(function(res) {
-//            console.log('success');
-//            //percent
-//            f.properties.area = turf.area(res.features[0]) / 1214000;
-//            f.properties.index = i;
-//            f.properties.feature = res.features[0];
-//        }).fail(function(err) {
-//            console.log( "error: " + err );
-//            f.properties.area = 0;
-//            f.properties.index = i;
-//            f.properties.feature = test;
-//        });
-//    });
-
+    squareGrid = savedGrida;
 
     setTimeout(function() {
         //grid layer
@@ -149,10 +176,15 @@
                     "property": "area",
                     "type": "interval",
                     "stops": [
-                        [0, "black"],
-                        [10, "red"],
-                        [20, "blue"],
-                        [30, "green"]
+                        [0, "white"],
+                        //5 square miles 1.295e+7
+                        [12950000, "red"],
+                        //ten square miles == 2.59e+7
+                        [25900000, "orange"],
+                        //5.18e+7 == 20 miles
+                        [51800000, "yellow"],
+                        //6.475e+7 == 25 square miles
+                        [64570000, "green"]
                     ]
                 },
                 "fill-outline-color" : 'white',
@@ -219,7 +251,8 @@
         });
 
 
-    }, 20000);
+
+    }, 5000);
 
 
 //    map.on('load', function () {
