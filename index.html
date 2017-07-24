@@ -7,17 +7,22 @@
     <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.css' rel='stylesheet' />
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
     <script src="data.js" ></script>
     <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
         #mapzen {
             position: absolute;
-            bottom: 0;
+            bottom: 7px;
             float: right;
-            right: 265px;
-            font-size: 13px;
+            right: 274px;
+            font-size: 12px;
             background-color: rgba(255, 255, 255, .5);
             font-family: sans-serif;
-            padding: 6px;
+            padding: 4px;
+            z-index: 1000;;
         }
 
         #mapzen a {
@@ -30,22 +35,101 @@
             margin: 0 8px 7px 0;
             padding: 4px 5px;
         }
+
+        #header {
+            padding: 20px 10px 0 10px;
+            font-weight: 200;
+        }
+        #title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        #instructions {
+            font-size: 16px;
+            display: inline-block;
+            cursor: pointer;
+            margin: 20px 0 15px 0;
+            font-style: italic;
+        }
+        #info {
+            font-size: 14px;
+        }
+        #key {
+            font-size:11px;
+            padding:5px;
+        }
+        .element {
+            display: inline-block;
+            padding: 0 4px;
+        }
+
+        .element .color {
+            width: 12px;
+            height: 12px;
+            display: inline-block;
+        }
+        .element .key-label {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
-<div id='map' style='width: 100vw; height: 100vh;'></div>
-<div id="mapzen">
-© <a href="https://www.mapzen.com/rights">Mapzen</a>
-, and <a href="https://www.mapzen.com/rights/#services-and-data-sources">others, and </a>
+<div id="header">
+    <div id="title">How much of San Francisco can one access within 30 minutes on transit? </div>
+    <div id="info">Data represents weekday AM (data from 7/19/2017 at 8:00 AM)</div>
+    <div id="instructions">Click on a map cell to see the area one can travel from that starting point.</div>
+    <div id="key">
+        <div class="element">
+            <div class="color" style="background-color:#D40020"></div>
+            <div class="key-label">< 2 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#EB0C06"></div>
+            <div class="key-label">2 - 4 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#F53B05"></div>
+            <div class="key-label">4 - 6 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#DE6207"></div>
+            <div class="key-label">6 - 8 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#F59805"></div>
+            <div class="key-label">8 - 10 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#EBB105"></div>
+            <div class="key-label">10 - 12 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#D4BC06"></div>
+            <div class="key-label">12 - 14 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#ACBD05"></div>
+            <div class="key-label">14 - 16 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#5BDF00"></div>
+            <div class="key-label">16 - 18 sq miles</div>
+        </div>
+    </div>
 </div>
+<div id='map' style='width: 98vw; height: 70vh;'><div id="mapzen">
+    © <a href="https://www.mapzen.com/rights">Mapzen</a>
+    , and <a href="https://www.mapzen.com/rights/#services-and-data-sources">others, and </a>
+</div></div>
+
 <script>
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2JpbmRtYW4iLCJhIjoiaENWQnlrVSJ9.0DQyCLWgA0j8yBpmvt3bGA';
     var map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v9',
+        style: 'mapbox://styles/mapbox/light-v9',
         center: [-122.4367904663086,
             37.76230130281876],
-        zoom : 12
+        zoom : 11
     });
 
     //var bbox = [ -122.51541137695311, 37.70555348721583 , -122.34924316406251, 37.81195385919268];
@@ -87,7 +171,7 @@
 
     var squareGrid = turf.squareGrid(bbox, cellSize, units, completelyWithin);
 
-    var test = {
+    var dummy = {
         "type": "FeatureCollection",
         "features": [
             {
@@ -151,16 +235,16 @@
             console.log( "error: " + err );
             f.properties.area = 0;
             f.properties.index = index;
-            f.properties.feature = test;
             index += 1;
         });
     }
-//      toggle to process square grid
-  //  processSquareGrids();
+    // toggle to process square grid
+   // processSquareGrids();
 
 
-    squareGrid = savedGrida;
+    squareGrid = savedGrid;
 
+    //add map
     setTimeout(function() {
         //grid layer
         map.addLayer({
@@ -176,15 +260,26 @@
                     "property": "area",
                     "type": "interval",
                     "stops": [
-                        [0, "white"],
-                        //5 square miles 1.295e+7
-                        [12950000, "red"],
-                        //ten square miles == 2.59e+7
-                        [25900000, "orange"],
-                        //5.18e+7 == 20 miles
-                        [51800000, "yellow"],
-                        //6.475e+7 == 25 square miles
-                        [64570000, "green"]
+                        //no data
+                        [0, "black"],
+                        [1, "#D40020"],
+                        //2 square miles
+                        [5180000, "#EB0C06"],
+                        //4 square miles
+                        [10360000, "#F53B05"],
+                        //6 square miles
+                        [15540000, "#DE6207"],
+                        //8 square miles
+                        [20720000, "#F59805"],
+
+                        //10 square miles
+                        [25900000, "#EBB105"],
+                        //12 square miles
+                        [31080000, "#D4BC06"],
+                        //14 square miles
+                        [36260000, "#ACBD05"],
+                        //16 square miles
+                        [41440000, "#5BDF00"]
                     ]
                 },
                 "fill-outline-color" : 'white',
@@ -216,7 +311,7 @@
             'type': 'fill',
             'source': {
                 'type': 'geojson',
-                'data': test
+                'data': dummy
             },
             'layout': {},
             'paint': {
@@ -229,7 +324,7 @@
 
 //                 When the user moves their mouse over the states-fill layer, we'll update the filter in
 //         the grid layer to only show the matching state, thus making a hover effect.
-        map.on("mousemove", "grid", function(e) {
+        map.on("click", "grid", function(e) {
             map.setFilter("grid-fill", ["==", "index", e.features[0].properties.index]);
 
             map.getSource('contour').setData( {
@@ -247,102 +342,15 @@
      //    Reset the grid layer's filter when the mouse leaves the layer.
         map.on("mouseleave", "grid", function() {
             map.setFilter("grid-fill", ["==", "index", ""]);
-            map.getSource('contour').setData(test);
+            map.getSource('contour').setData(dummy);
         });
 
 
 
-    }, 5000);
+    }, 2000);
 
 
-//    map.on('load', function () {
-//
-//        //grid layer
-//        map.addLayer({
-//            'id': 'grid',
-//            'type': 'fill',
-//            'source': {
-//                'type': 'geojson',
-//                'data': squareGrid
-//            },
-//            'layout': {},
-//            'paint': {
-//                "fill-color": {
-//                    "property": "area",
-//                    "type": "interval",
-//                    "stops": [
-//                        [0, "black"],
-//                        [10, "red"],
-//                        [20, "blue"],
-//                        [30, "green"]
-//                    ]
-//                },
-//                "fill-outline-color" : 'white'
-//            }
-//        });
-//
-//       // grid layer
-//        map.addLayer({
-//            'id': 'grid-fill',
-//            'type': 'fill',
-//            'source': {
-//                'type': 'geojson',
-//                'data': squareGrid
-//            },
-//            'layout': {},
-//            "paint": {
-//                "fill-color": "#627BC1",
-//                "fill-opacity": 1
-//            },
-//            "filter": ["==", "index", ""]
-//        });
-//
-//
-//
-//        //   grid layer
-//        map.addLayer({
-//            'id': 'contour',
-//            'type': 'fill',
-//            'source': {
-//                'type': 'geojson',
-//                'data': test
-//            },
-//            'layout': {},
-//            'paint': {
-//                'fill-color': '#088',
-//                'fill-opacity': 0.8,
-//                'fill-outline-color' : '#088'
-//            }
-//        });
-//
-//        // When the user moves their mouse over the states-fill layer, we'll update the filter in
-//        // the grid layer to only show the matching state, thus making a hover effect.
-////        map.on("mousemove", "grid", function(e) {
-////            map.setFilter("grid-fill", ["==", "index", e.features[0].properties.index]);
-////
-////            map.getSource('contour').setData( {
-////                "type": "FeatureCollection",
-////                "features": [
-////                    JSON.parse(e.features[0].properties._vectorTileFeature)
-////                ]
-////            }
-////
-////                );
-////
-////
-////        });
-//
-//     //    Reset the grid layer's filter when the mouse leaves the layer.
-//        map.on("mouseleave", "grid", function() {
-//            map.setFilter("grid-fill", ["==", "index", ""]);
-//            map.getSource('contour').setData(test);
-//        });
-//
-//
-//
-//
-//
-//    });
+
 </script>
 </body>
 </html>
