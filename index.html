@@ -8,12 +8,12 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.css' rel='stylesheet' />
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
-    <script src="am_30.js" ></script>
-    <script src="am_60.js" ></script>
-    <script src="am45.js" ></script>
-        <script src="pm_30.js" ></script>
-    <script src="pm_60.js" ></script>
-    <script src="pm_45.js" ></script>
+    <script src="am_30_skinny.js" ></script>
+    <script src="am_60_skinny.js" ></script>
+    <script src="am_45_skinny.js" ></script>
+    <script src="pm_30_skinny.js" ></script>
+    <script src="pm_60_skinny.js" ></script>
+    <script src="pm_45_skinny.js" ></script>
     <script src="keys.js" ></script>
     <style>
         body {
@@ -217,19 +217,16 @@
 
     function updateFilter() {
         var time = document.getElementById("selectTime").value;
-       // var peak = document.getElementById("peak").value;
-        var peak = 'am';
-        var data = null;
-        var pm_30 = null;
+        var peak = document.getElementById("peak").value;
 
         if (time == 30) {
-            data = (peak == 'am') ? am_30 : pm_30;
+            data = (peak == 'am') ? am_30_skinny : pm_30_skinny;
         }
         else if (time == 45) {
-            data = (peak == 'am') ? am45 : pm_45;
+            data = (peak == 'am') ? am_45_skinny : pm_45_skinny;
         }
         else {
-            data = (peak == 'am') ? am_60 : pm_60;
+            data = (peak == 'am') ? am_60_skinny : pm_60_skinny;
         }
 
         map.getSource('grid').setData(data);
@@ -289,7 +286,7 @@
 //    processSquareGrids();
 
 
-    squareGrid = am_30;
+    squareGrid = am_30_skinny;
 
     //add map
     setTimeout(function() {
@@ -373,32 +370,6 @@
                 'fill-outline-color' : '#088'
             }
         });
-
-
-//                 When the user moves their mouse over the states-fill layer, we'll update the filter in
-//         the grid layer to only show the matching state, thus making a hover effect.
-        map.on("click", "grid", function(e) {
-            map.setFilter("grid-fill", ["==", "index", e.features[0].properties.index]);
-
-            map.getSource('contour').setData( {
-                "type": "FeatureCollection",
-                "features": [
-                    JSON.parse(e.features[0].properties.feature)
-                ]
-            }
-
-                );
-
-
-        });
-
-     //    Reset the grid layer's filter when the mouse leaves the layer.
-        map.on("mouseleave", "grid", function() {
-            map.setFilter("grid-fill", ["==", "index", ""]);
-            map.getSource('contour').setData(dummy);
-        });
-
-
 
     }, 2000);
 
