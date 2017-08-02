@@ -8,7 +8,13 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v0.37.0/mapbox-gl.css' rel='stylesheet' />
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
-    <script src="data.js" ></script>
+    <script src="am_30.js" ></script>
+    <script src="am_60.js" ></script>
+    <script src="am45.js" ></script>
+        <script src="pm_30.js" ></script>
+    <script src="pm_60.js" ></script>
+    <script src="pm_45.js" ></script>
+    <script src="keys.js" ></script>
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -79,7 +85,19 @@
 </head>
 <body>
 <div id="header">
-    <div id="title">How much of San Francisco can one access within 30 minutes on transit? </div>
+    <div id="title">How much of San Francisco can one access within
+        <select id="selectTime" onchange="updateFilter()">
+            <option value="30">30 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60">60 minutes</option>
+        </select>
+        on transit during the
+        <select id="peak" onchange="updateFilter()">
+            <option value="am">AM peak</option>
+            <option value="pm">PM peak</option>
+        </select>
+        ?
+    </div>
     <div id="info">Data represents weekday AM (data from 7/19/2017 at 8:00 AM)</div>
     <div id="instructions">Click on a map cell to see the area one can travel from that starting point in 30 minutes on transit.</div>
     <div id="key">
@@ -139,12 +157,15 @@
 
 
 
-    //var bbox = [ -122.51541137695311, 37.70555348721583 , -122.34924316406251, 37.81195385919268];
+    var bbox = [ -122.51541137695311, 37.70555348721583 , -122.34924316406251, 37.81195385919268];
 
     //var lat_increment (-122) = 0.04154205322265;
     //var long_increment (37) = 0.02660009299421;
 
     //boxes start in bottom right corner moving bottom to top, right to left
+    //to get data start with first bounding box and work through, updating the index
+    //after program runs, run JSON.stringify(squareGrid.features) to get all of the features
+    //compile those in a file to get all of the features for a given layer
 
     var bboxa = [ -122.39078521728516, 37.70786226112981 , -122.35628128051756, 37.73215358021004];
     var bboxb = [ -122.39078521728516, 37.73215358021004 , -122.36701011657716, 37.75875367320425];
@@ -164,12 +185,9 @@
     var bboxm = [ -122.50665664672852, 37.70555348721583 , -122.47386932373046, 37.73215358021004];
     var bboxn = [ -122.51034736633302, 37.73215358021004 , -122.47386932373046, 37.75875367320425];
     var bboxo = [ -122.51541137695311, 37.75875367320425 , -122.47386932373046, 37.78535376619846];
-    //this bounding box should be divided into 2
-    var bboxp = [ -122.51541137695311, 37.78535376619846 , -122.47386932373046, 37.81195385919267];
 
-    bbox = bboxg;
-    var index = 700;
-
+    bbox = bbox;
+    var index = 0;
 
 
     var cellSize = .25;
@@ -197,6 +215,27 @@
 
     var squareGridFeatures = squareGrid.features.slice();
 
+    function updateFilter() {
+        var time = document.getElementById("selectTime").value;
+       // var peak = document.getElementById("peak").value;
+        var peak = 'am';
+        var data = null;
+        var pm_30 = null;
+
+        if (time == 30) {
+            data = (peak == 'am') ? am_30 : pm_30;
+        }
+        else if (time == 45) {
+            data = (peak == 'am') ? am45 : pm_45;
+        }
+        else {
+            data = (peak == 'am') ? am_60 : pm_60;
+        }
+
+        map.getSource('grid').setData(data);
+    }
+
+
 
     function processSquareGrids() {
 
@@ -214,9 +253,9 @@
         var json = {
             "locations": [{"lat":centroidPt.geometry.coordinates[1],"lon":centroidPt.geometry.coordinates[0]}],
             "costing": "multimodal",
-            "contours":[{"time":30}],
+            "contours":[{"time":60}],
             "polygons": true,
-            "date_time": [{"type":1, "value" : "2017-07-19T08:00"}]
+            "date_time": [{"type":1, "value" : "2017-07-19T020:00"}]
         };
 
         var url =  'https://matrix.mapzen.com/isochrone?json=';
@@ -230,7 +269,7 @@
             dataType: "json",
             data: {
 //                todo add updated key
-//                "api_key": "mapzen-Xc4NRCr"
+                "api_key": mapzen_key
             },
         }).done(function(res) {
             console.log('success');
@@ -247,10 +286,10 @@
         });
     }
     // toggle to process square grid
-   // processSquareGrids();
+//    processSquareGrids();
 
 
-    squareGrid = savedGrid;
+    squareGrid = am_30;
 
     //add map
     setTimeout(function() {
@@ -287,7 +326,13 @@
                         //14 square miles
                         [36260000, "#ACBD05"],
                         //16 square miles
-                        [41440000, "#5BDF00"]
+                        [41440000, "#5BDF00"],
+                        //18 square miles
+                        [46620000, "#08C861"],
+                        //20 square miles
+                        [51800000, "#06EAE5"],
+                        //22 square miles
+                        [56980000, "#0C94EA"]
                     ]
                 },
                 "fill-outline-color" : 'white',
