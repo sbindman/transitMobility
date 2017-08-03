@@ -42,9 +42,9 @@
             padding: 4px 5px;
         }
         
-        .mapboxgl-canvas {
-            cursor: pointer;
-        }
+        /*.mapboxgl-canvas {*/
+            /*cursor: pointer;*/
+        /*}*/
 
         #header {
             padding: 20px 10px 0 10px;
@@ -65,7 +65,7 @@
         }
         #key {
             font-size:11px;
-            padding:5px;
+            padding:25px 5px 5px 5px;
         }
         .element {
             display: inline-block;
@@ -99,43 +99,44 @@
         ?
     </div>
     <div id="info">Data represents weekday AM (data from 7/19/2017 at 8:00 AM)</div>
-    <div id="instructions">Click on a map cell to see the area one can travel from that starting point in 30 minutes on transit.</div>
+    <!--<div id="instructions">Click on a map cell to see the area one can travel from that starting point in 30 minutes on transit.</div>-->
     <div id="key">
         <div class="element">
             <div class="color" style="background-color:#D40020"></div>
-            <div class="key-label">< 2 sq miles</div>
-        </div>
-        <div class="element">
-            <div class="color" style="background-color:#EB0C06"></div>
-            <div class="key-label">2 - 4 sq miles</div>
+            <div class="key-label">< 5 sq miles</div>
         </div>
         <div class="element">
             <div class="color" style="background-color:#F53B05"></div>
-            <div class="key-label">4 - 6 sq miles</div>
-        </div>
-        <div class="element">
-            <div class="color" style="background-color:#DE6207"></div>
-            <div class="key-label">6 - 8 sq miles</div>
+            <div class="key-label">10 sq miles</div>
         </div>
         <div class="element">
             <div class="color" style="background-color:#F59805"></div>
-            <div class="key-label">8 - 10 sq miles</div>
-        </div>
-        <div class="element">
-            <div class="color" style="background-color:#EBB105"></div>
-            <div class="key-label">10 - 12 sq miles</div>
+            <div class="key-label">15 sq miles</div>
         </div>
         <div class="element">
             <div class="color" style="background-color:#D4BC06"></div>
-            <div class="key-label">12 - 14 sq miles</div>
-        </div>
-        <div class="element">
-            <div class="color" style="background-color:#ACBD05"></div>
-            <div class="key-label">14 - 16 sq miles</div>
+            <div class="key-label">20 sq miles</div>
         </div>
         <div class="element">
             <div class="color" style="background-color:#5BDF00"></div>
-            <div class="key-label">16 - 18 sq miles</div>
+            <div class="key-label">25 sq miles</div>
+        </div>
+
+        <div class="element">
+            <div class="color" style="background-color:#0C94EA"></div>
+            <div class="key-label">30 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#0025EA"></div>
+            <div class="key-label">35 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#5C08F5"></div>
+            <div class="key-label">40 sq miles</div>
+        </div>
+        <div class="element">
+            <div class="color" style="background-color:#000000"></div>
+            <div class="key-label">No Data</div>
         </div>
     </div>
 </div>
@@ -308,28 +309,62 @@
                         [0, "black"],
                         [1, "#D40020"],
                         //2 square miles
-                        [5180000, "#EB0C06"],
-                        //4 square miles
-                        [10360000, "#F53B05"],
-                        //6 square miles
-                        [15540000, "#DE6207"],
-                        //8 square miles
-                        [20720000, "#F59805"],
+//                        [5180000, "#EB0C06"],
+//                        //4 square miles
+//                        [10360000, "#F53B05"],
+//                        //6 square miles
+//                        [15540000, "#DE6207"],
+//                        //8 square miles
+//                        [20720000, "#F59805"],
+//
+//                        //10 square miles
+//                        [25900000, "#EBB105"],
+//                        //12 square miles
+//                        [31080000, "#D4BC06"],
+//                        //14 square miles
+//                        [36260000, "#ACBD05"],
+//                        //16 square miles
+//                        [41440000, "#5BDF00"],
+//                        //18 square miles
+//                        [46620000, "#08C861"],
+//                        //20 square miles
+//                        [51800000, "#06EAE5"],
+//                        //22 square miles
+//                        [56980000, "#0C94EA"],
 
+                        //5 square miles
+                        [12949940, "#EB0C06"],
+                        //7.5 square miles
+                        [19424910, "#F53B05"],
                         //10 square miles
-                        [25900000, "#EBB105"],
-                        //12 square miles
-                        [31080000, "#D4BC06"],
-                        //14 square miles
-                        [36260000, "#ACBD05"],
-                        //16 square miles
-                        [41440000, "#5BDF00"],
-                        //18 square miles
-                        [46620000, "#08C861"],
+                        [25899880, "#DE6207"],
+                        //12.5 square miles
+                        [32374850, "#F59805"],
+
+                        //15 square miles
+                        [38849820, "#EBB105"],
+                        //17.5 square miles
+                        [45324790, "#D4BC06"],
                         //20 square miles
-                        [51800000, "#06EAE5"],
-                        //22 square miles
-                        [56980000, "#0C94EA"]
+                        [51799760, "#ACBD05"],
+                        //22.5 square miles
+                        [58274730, "#5BDF00"],
+                        //25 square miles
+                        [64749700, "#08C861"],
+                        //27.5 square miles
+                        [71224670, "#06EAE5"],
+                        //30 square miles
+                        [77699640, "#0C94EA"],
+                        //32.5 square miles
+                        [84174610, "#025ED3"],
+
+                        //35 square miles
+                        [90649580, "#0025EA"],
+
+                        //37.5 square miles
+                        [97124550, "#1F05D3"],
+                        //40 square miles
+                        [103599500, "#5C08F5"]
                     ]
                 },
                 "fill-outline-color" : 'white',
