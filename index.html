@@ -193,9 +193,8 @@
 
     var cellSize = .25;
     var units = 'miles';
-    var completelyWithin = true;
 
-    var squareGrid = turf.squareGrid(bbox, cellSize, units, completelyWithin);
+    var squareGrid = turf.squareGrid(bbox, cellSize, { 'units': units });
 
     var dummy = {
         "type": "FeatureCollection",
